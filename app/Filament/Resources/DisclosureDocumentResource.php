@@ -1,0 +1,61 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Filament\Support\ResourceTable;
+use App\Filament\Resources\DisclosureDocumentResource\Pages\CreateDisclosureDocument;
+use App\Filament\Resources\DisclosureDocumentResource\Pages\EditDisclosureDocument;
+use App\Filament\Resources\DisclosureDocumentResource\Pages\ListDisclosureDocuments;
+use App\Models\DisclosureDocument;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Table;
+
+class DisclosureDocumentResource extends Resource
+{
+    protected static ?string $model = DisclosureDocument::class;
+
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentCheck;
+
+    protected static ?string $navigationLabel = 'Disclosure PDFs';
+
+    protected static string | \UnitEnum | null $navigationGroup = 'Compliance';
+
+    protected static ?int $navigationSort = 1;
+
+    public static function form(Schema $schema): Schema
+    {
+        return $schema->components([
+            TextInput::make('title')->required()->maxLength(255),
+            FileUpload::make('pdf_path')->acceptedFileTypes(['application/pdf'])->required()->disk('public')->directory('disclosure'),
+            TextInput::make('sort_order')->numeric()->default(0),
+            Toggle::make('is_published')->default(true),
+        ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return ResourceTable::editable($table, static::class, reorderable: true)
+            ->columns([
+                TextColumn::make('title')->searchable(),
+                TextColumn::make('sort_order')->sortable(),
+                ToggleColumn::make('is_published'),
+            ])
+            ->defaultSort('sort_order');
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListDisclosureDocuments::route('/'),
+            'create' => CreateDisclosureDocument::route('/create'),
+            'edit' => EditDisclosureDocument::route('/{record}/edit'),
+        ];
+    }
+}
