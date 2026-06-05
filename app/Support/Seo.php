@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use App\Models\SiteSetting;
+
 class Seo
 {
     public static function title(?string $pageTitle, ?string $schoolName = null): string
