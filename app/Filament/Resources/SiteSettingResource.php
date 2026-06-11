@@ -56,7 +56,7 @@ class SiteSettingResource extends Resource
                                 ])
                                 ->columns(2),
                             Section::make('Brand images')
-                                ->description('Upload logo and favicon separately — each keeps its own file when you save.')
+                                ->description('Upload your wide header logo (PNG with school name). Only the logo image shows in the header — no extra affiliation text beside it.')
                                 ->schema([
                                     ...ManagedImageUpload::brandPair(),
                                 ])

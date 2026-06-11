@@ -53,6 +53,11 @@ class ImageProcessor
             return $path;
         }
 
+        // Header logo: keep the uploaded file exactly as provided.
+        if ($config['fit'] ?? false) {
+            return $path;
+        }
+
         $targetW = $config['w'];
         $targetH = $config['h'];
         $fullPath = $disk->path($path);
@@ -75,14 +80,12 @@ class ImageProcessor
         $targetRatio = $targetW / $targetH;
         $ratioMatches = abs($srcRatio - $targetRatio) < 0.03;
 
-        // Keep the admin crop when already within target size.
         if ($srcW <= $targetW && $srcH <= $targetH) {
             imagedestroy($src);
 
             return $path;
         }
 
-        // Same aspect ratio as preset: scale down only — do not center-crop again.
         $dst = $ratioMatches
             ? self::resizeDown($src, $srcW, $srcH, $targetW, $targetH)
             : self::resizeCover($src, $srcW, $srcH, $targetW, $targetH);

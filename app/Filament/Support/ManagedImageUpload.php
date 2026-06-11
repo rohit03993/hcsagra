@@ -55,10 +55,11 @@ class ManagedImageUpload
             'hint' => 'Page header image',
         ],
         'logo' => [
-            'w' => 400,
-            'h' => 400,
-            'ratio' => '1:1',
-            'hint' => 'School logo',
+            'w' => 960,
+            'h' => 320,
+            'ratio' => null,
+            'hint' => 'Header logo (full width)',
+            'fit' => true,
         ],
         'favicon' => [
             'w' => 128,
@@ -133,21 +134,11 @@ class ManagedImageUpload
             ->maxSize($maxSizeKb)
             ->acceptedFileTypes(self::acceptedTypesFor($preset))
             ->imagePreviewHeight(self::previewHeightFor($preset))
-            ->imageAspectRatio($config['ratio'])
-            ->itemPanelAspectRatio($config['ratio'])
             ->panelLayout('grid')
-            ->automaticallyOpenImageEditorForAspectRatio()
-            ->imageEditor()
-            ->imageEditorEmptyFillColor('#f4f4f5')
             ->deletable(true)
             ->removeUploadedFileButtonPosition('right top')
             ->uploadButtonPosition('center')
             ->uploadProgressIndicatorPosition('center')
-            ->imageEditorAspectRatioOptions([
-                $config['ratio'] => $config['ratio'],
-            ])
-            ->imageEditorViewportWidth($config['w'])
-            ->imageEditorViewportHeight($config['h'])
             ->openable()
             ->downloadable()
             ->previewable(true)
@@ -180,9 +171,6 @@ class ManagedImageUpload
                     'url' => $url,
                 ];
             })
-            ->helperText(
-                "Ratio {$config['ratio']} (about {$config['w']}×{$config['h']} px). Click thumbnail → Edit to crop after upload."
-            )
             ->visible(function (Get $get, ?Model $record) use ($field, $removeField, $replaceField): bool {
                 if ($record === null) {
                     return true;
@@ -201,6 +189,28 @@ class ManagedImageUpload
 
                 return self::isTruthy($get($replaceField));
             });
+
+        if ($preset === 'logo') {
+            $upload->helperText(
+                'Upload your complete logo (PNG or JPG). The full image is used as-is — no crop step. '
+                .'Recommended: wide logo about 600–960 px wide.'
+            );
+        } else {
+            $upload
+                ->imageEditor()
+                ->imageAspectRatio($config['ratio'])
+                ->itemPanelAspectRatio($config['ratio'])
+                ->automaticallyOpenImageEditorForAspectRatio()
+                ->imageEditorEmptyFillColor('#f4f4f5')
+                ->imageEditorAspectRatioOptions([
+                    $config['ratio'] => $config['ratio'],
+                ])
+                ->imageEditorViewportWidth($config['w'])
+                ->imageEditorViewportHeight($config['h'])
+                ->helperText(
+                    "Ratio {$config['ratio']} (about {$config['w']}×{$config['h']} px). Click thumbnail → Edit to crop after upload."
+                );
+        }
 
         if ($required) {
             $upload->required(function (Get $get, $livewire) use ($removeField): bool {
@@ -224,6 +234,7 @@ class ManagedImageUpload
     {
         return match ($preset) {
             'hero', 'page_hero' => '220',
+            'logo' => '120',
             'favicon' => '140',
             default => '200',
         };

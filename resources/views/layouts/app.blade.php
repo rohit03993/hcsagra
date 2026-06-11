@@ -47,22 +47,25 @@
         <x-school-top-bar />
         <header class="site-header sticky top-0 z-50 overflow-visible">
             <div class="site-container site-header__row">
-                <a href="{{ route('home') }}" class="school-brand min-w-0 shrink-0">
-                    <span class="school-brand__logo-wrap">
-                        @if ($settings->logo_path ?? null)
-                            <img src="{{ \App\Support\MediaUrl::public($settings->logo_path) }}" alt="{{ $settings->school_name }}" class="school-brand__logo" width="64" height="64" decoding="async">
-                        @else
-                            <img src="{{ asset('images/demo/logo.svg') }}" alt="" class="school-brand__logo" width="64" height="64">
-                        @endif
-                    </span>
-                    <span class="school-brand__text min-w-0">
-                        <span class="school-brand__name">{{ $settings->school_name }}</span>
-                        @if ($settings->affiliation_line)
-                            <span class="school-brand__affiliation">{{ $settings->affiliation_line }}</span>
-                        @elseif ($settings->tagline)
-                            <span class="school-brand__affiliation">{{ $settings->tagline }}</span>
-                        @endif
-                    </span>
+                <a href="{{ route('home') }}" class="school-brand min-w-0 shrink-0 {{ ($settings->logo_path ?? null) ? 'school-brand--logo-only' : '' }}">
+                    @if ($settings->logo_path ?? null)
+                        <img
+                            src="{{ \App\Support\MediaUrl::public($settings->logo_path) }}"
+                            alt="{{ $settings->school_name }}"
+                            class="school-brand__logo-image"
+                            width="320"
+                            height="80"
+                            decoding="async"
+                            fetchpriority="high"
+                        >
+                    @else
+                        <span class="school-brand__text min-w-0">
+                            <span class="school-brand__name">{{ $settings->school_name }}</span>
+                            @if ($settings->tagline)
+                                <span class="school-brand__affiliation">{{ $settings->tagline }}</span>
+                            @endif
+                        </span>
+                    @endif
                 </a>
 
                 <div class="hidden xl:flex flex-1 min-w-0 justify-center px-2">
