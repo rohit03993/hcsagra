@@ -16,7 +16,10 @@ class SitemapController extends Controller
         $urls = [
             ['loc' => route('home'), 'priority' => '1.0'],
             ['loc' => route('gallery'), 'priority' => '0.8'],
+            ['loc' => route('facilities'), 'priority' => '0.8'],
             ['loc' => route('videos'), 'priority' => '0.8'],
+            ['loc' => route('testimonials'), 'priority' => '0.7'],
+            ['loc' => route('leadership'), 'priority' => '0.7'],
             ['loc' => route('contact'), 'priority' => '0.8'],
             ['loc' => route('admission.enquiry'), 'priority' => '0.9'],
             ['loc' => route('mandatory-disclosure'), 'priority' => '0.6'],

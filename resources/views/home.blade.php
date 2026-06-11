@@ -80,7 +80,7 @@
     <section class="site-container home-section">
         <div class="home-about">
             <div class="home-about__main">
-                <x-section-title subtitle="About Our School">A Place to Learn &amp; Grow</x-section-title>
+                <x-home-section-title section="about" />
                 <div class="home-about__panel">
                     <p class="home-lead">
                         {{ $settings->about_text ?: $settings->tagline ?: 'We are committed to providing quality education in a safe, caring environment where every child can achieve their full potential.' }}
@@ -133,7 +133,7 @@
     @if ($settings->showsNewsSection() && ($announcements->isNotEmpty() || $achievements->isNotEmpty() || $events->isNotEmpty()))
         <section class="home-band home-band--cream">
             <div class="site-container home-section home-section--in-band home-section--tight-top" id="updates">
-                <x-section-title subtitle="News &amp; Notices">School Updates</x-section-title>
+                <x-home-section-title section="news" />
                 @php $firstNewsTab = true; @endphp
                 <div class="news-tabs" role="tablist">
                     @foreach ([
@@ -150,30 +150,32 @@
                     @endforeach
                 </div>
                 @php $firstNewsPanel = true; @endphp
-                @foreach ([
-                    ['id' => 'announcement', 'items' => $announcements],
-                    ['id' => 'achievement', 'items' => $achievements],
-                    ['id' => 'event', 'items' => $events],
-                ] as $panel)
-                    @if ($panel['items']->isNotEmpty())
-                        <div class="news-panel {{ $firstNewsPanel ? '' : 'hidden' }}" data-panel="{{ $panel['id'] }}" role="tabpanel">
-                            @php $firstNewsPanel = false; @endphp
-                            @foreach ($panel['items'] as $post)
-                                <x-post-card-compact :post="$post" />
-                            @endforeach
-                            <div class="news-panel__footer">
-                                <a href="{{ route('posts.index', ['type' => $panel['id']]) }}" class="home-text-link">View all notices</a>
+                    @foreach ([
+                        ['id' => 'announcement', 'items' => $announcements, 'hasMore' => $hasMoreAnnouncements],
+                        ['id' => 'achievement', 'items' => $achievements, 'hasMore' => $hasMoreAchievements],
+                        ['id' => 'event', 'items' => $events, 'hasMore' => $hasMoreEvents],
+                    ] as $panel)
+                        @if ($panel['items']->isNotEmpty())
+                            <div class="news-panel {{ $firstNewsPanel ? '' : 'hidden' }}" data-panel="{{ $panel['id'] }}" role="tabpanel">
+                                @php $firstNewsPanel = false; @endphp
+                                @foreach ($panel['items'] as $post)
+                                    <x-post-card-compact :post="$post" />
+                                @endforeach
+                                @if ($panel['hasMore'])
+                                    <div class="news-panel__footer">
+                                        <a href="{{ route('posts.index', ['type' => $panel['id']]) }}" class="home-text-link">See all</a>
+                                    </div>
+                                @endif
                             </div>
-                        </div>
-                    @endif
-                @endforeach
+                        @endif
+                    @endforeach
             </div>
         </section>
     @endif
 
     @if ($settings->mission_text || $settings->vision_text)
         <section class="site-container home-section">
-            <x-section-title subtitle="Our Purpose">Mission &amp; Vision</x-section-title>
+            <x-home-section-title section="mission" />
             <div class="home-mv-grid">
                 @if ($settings->mission_text)
                     <div class="home-mv-card home-mv-card--mission">
@@ -202,10 +204,15 @@
     @if ($deskMessages->isNotEmpty())
         <section class="home-band home-band--cream">
             <div class="site-container home-section home-section--in-band">
-                <x-section-title subtitle="Leadership Messages">Director &amp; Principal</x-section-title>
-                <div class="home-desk-grid">
+                <div class="home-section-header">
+                    <x-home-section-title section="leadership" class="!mb-0" />
+                    @if ($hasMoreDeskMessages)
+                        <a href="{{ route('leadership') }}" class="home-text-link home-section-header__action">See all</a>
+                    @endif
+                </div>
+                <x-home-carousel :desktop-cols="2" :slides="$deskMessages->count()">
                     @foreach ($deskMessages as $message)
-                        <article class="home-desk-card">
+                        <article class="home-carousel__slide home-desk-card">
                             <div class="home-desk-card__head">
                                 @if ($message->photo_path)
                                     <img src="{{ \App\Support\MediaUrl::public($message->photo_path) }}" alt="{{ $message->name }}" class="home-desk-card__photo" loading="lazy" width="80" height="80">
@@ -223,17 +230,22 @@
                             <p class="home-desk-card__message">{{ $message->message }}</p>
                         </article>
                     @endforeach
-                </div>
+                </x-home-carousel>
             </div>
         </section>
     @endif
 
     @if ($facilities->isNotEmpty())
         <section class="site-container home-section" id="facilities">
-            <x-section-title subtitle="Our Campus">School Facilities</x-section-title>
-            <div class="home-facility-grid">
+            <div class="home-section-header">
+                <x-home-section-title section="facilities" class="!mb-0" />
+                @if ($hasMoreFacilities)
+                    <a href="{{ route('facilities') }}" class="home-text-link home-section-header__action">See all</a>
+                @endif
+            </div>
+            <x-home-carousel :desktop-cols="3" :slides="$facilities->count()">
                 @foreach ($facilities as $facility)
-                    <div class="home-facility-card">
+                    <div class="home-carousel__slide home-facility-card">
                         @if ($facility->image_path)
                             <div class="home-facility-card__media">
                                 <img src="{{ \App\Support\MediaUrl::public($facility->image_path) }}" alt="{{ $facility->name }}" loading="lazy" width="280" height="160">
@@ -246,7 +258,7 @@
                         <p class="home-facility-card__title">{{ $facility->name }}</p>
                     </div>
                 @endforeach
-            </div>
+            </x-home-carousel>
         </section>
     @endif
 
@@ -254,30 +266,37 @@
         <section class="home-band home-band--cream">
             <div class="site-container home-section home-section--in-band">
                 <div class="home-section-header">
-                    <x-section-title subtitle="Campus Life" class="!mb-0">Photo Gallery</x-section-title>
-                    <a href="{{ route('gallery') }}" class="home-text-link home-section-header__action">View gallery</a>
+                    <x-home-section-title section="gallery" class="!mb-0" />
+                    @if ($hasMoreGallery)
+                        <a href="{{ route('gallery') }}" class="home-text-link home-section-header__action">See all</a>
+                    @endif
                 </div>
-                <div class="home-gallery-grid" data-gallery-grid>
+                <x-home-carousel :desktop-cols="6" :slides="$gallery->count()" data-gallery-grid>
                     @foreach ($gallery as $item)
                         @php
                             $gSrc = \App\Support\MediaUrl::public($item->image_path);
                             $gTitle = $item->title ?? 'Gallery';
                         @endphp
-                        <x-gallery-thumb :src="$gSrc" :caption="$gTitle" class="home-gallery-item">
+                        <x-gallery-thumb :src="$gSrc" :caption="$gTitle" class="home-carousel__slide home-gallery-item">
                             <img src="{{ $gSrc }}" alt="{{ $gTitle }}" loading="lazy" width="200" height="200">
                         </x-gallery-thumb>
                     @endforeach
-                </div>
+                </x-home-carousel>
             </div>
         </section>
     @endif
 
     @if ($testimonials->isNotEmpty())
         <section class="site-container home-section">
-            <x-section-title subtitle="Parent Feedback">What Parents Say</x-section-title>
-            <div class="home-testimonial-grid">
-                @foreach ($testimonials->take(3) as $t)
-                    <blockquote class="home-testimonial-card">
+            <div class="home-section-header">
+                <x-home-section-title section="testimonials" class="!mb-0" />
+                @if ($hasMoreTestimonials)
+                    <a href="{{ route('testimonials') }}" class="home-text-link home-section-header__action">See all</a>
+                @endif
+            </div>
+            <x-home-carousel :desktop-cols="3" :slides="$testimonials->count()">
+                @foreach ($testimonials as $t)
+                    <blockquote class="home-carousel__slide home-testimonial-card">
                         <span class="home-testimonial-card__mark" aria-hidden="true">"</span>
                         <p class="home-testimonial-card__quote">{{ $t->quote }}</p>
                         <footer class="home-testimonial-card__footer">
@@ -288,7 +307,7 @@
                         </footer>
                     </blockquote>
                 @endforeach
-            </div>
+            </x-home-carousel>
         </section>
     @endif
 
@@ -296,17 +315,19 @@
         <section class="home-band home-band--cream">
             <div class="site-container home-section home-section--in-band">
                 <div class="home-section-header">
-                    <x-section-title subtitle="Watch &amp; Explore" class="!mb-0">School Videos</x-section-title>
-                    <a href="{{ route('videos') }}" class="home-text-link home-section-header__action">All videos</a>
+                    <x-home-section-title section="videos" class="!mb-0" />
+                    @if ($hasMoreVideos)
+                        <a href="{{ route('videos') }}" class="home-text-link home-section-header__action">See all</a>
+                    @endif
                 </div>
-                <div class="home-video-grid">
+                <x-home-carousel :desktop-cols="4" :slides="$videos->count()">
                     @foreach ($videos as $video)
-                        <div class="home-video-card">
+                        <div class="home-carousel__slide home-video-card">
                             <x-youtube-lite :video-id="$video->youtube_id" :title="$video->title" />
                             <p class="home-video-card__title">{{ $video->title }}</p>
                         </div>
                     @endforeach
-                </div>
+                </x-home-carousel>
             </div>
         </section>
     @endif

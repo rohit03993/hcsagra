@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     initHeroSlider();
+    initHomeCarousels();
     initMobileMenu();
     initNewsTabs();
     initGalleryLightbox();
@@ -43,6 +44,57 @@ function initHeroSlider() {
     resetTimer();
 
     track.addEventListener('touchstart', resetTimer, { passive: true });
+}
+
+function initHomeCarousels() {
+    const mobileQuery = window.matchMedia('(max-width: 767px)');
+
+    document.querySelectorAll('.home-carousel').forEach((carousel) => {
+        const track = carousel.querySelector('.home-carousel__track');
+        if (!track) return;
+
+        const slides = track.querySelectorAll('.home-carousel__slide');
+        if (slides.length < 2) return;
+
+        const prevBtn = carousel.querySelector('.home-carousel__prev');
+        const nextBtn = carousel.querySelector('.home-carousel__next');
+        const interval = parseInt(carousel.dataset.autoplay || '6000', 10);
+
+        const getIndex = () => Math.round(track.scrollLeft / track.clientWidth);
+
+        const goTo = (index) => {
+            const i = ((index % slides.length) + slides.length) % slides.length;
+            track.scrollTo({ left: slides[i].offsetLeft, behavior: 'smooth' });
+        };
+
+        let timer;
+
+        const resetTimer = () => {
+            clearInterval(timer);
+            if (!mobileQuery.matches) return;
+            timer = setInterval(() => goTo(getIndex() + 1), interval);
+        };
+
+        prevBtn?.addEventListener('click', () => {
+            goTo(getIndex() - 1);
+            resetTimer();
+        });
+
+        nextBtn?.addEventListener('click', () => {
+            goTo(getIndex() + 1);
+            resetTimer();
+        });
+
+        track.addEventListener('touchstart', resetTimer, { passive: true });
+
+        mobileQuery.addEventListener('change', () => {
+            clearInterval(timer);
+            track.scrollTo({ left: 0 });
+            if (mobileQuery.matches) resetTimer();
+        });
+
+        if (mobileQuery.matches) resetTimer();
+    });
 }
 
 function initMobileMenu() {

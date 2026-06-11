@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\HomepageSectionHeadings;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
@@ -37,6 +38,8 @@ class SiteSetting extends Model
         'show_admission_banner',
         'admission_banner_text',
         'show_news_section',
+        'homepage_facilities_limit',
+        'homepage_section_labels',
     ];
 
     protected function casts(): array
@@ -44,7 +47,37 @@ class SiteSetting extends Model
         return [
             'show_admission_banner' => 'boolean',
             'show_news_section' => 'boolean',
+            'homepage_facilities_limit' => 'integer',
+            'homepage_section_labels' => 'array',
         ];
+    }
+
+    /** @return array{subtitle: string, title: string} */
+    public function homeSectionHeading(string $section): array
+    {
+        $defaults = HomepageSectionHeadings::defaults()[$section] ?? [
+            'subtitle' => '',
+            'title' => ucfirst($section),
+        ];
+
+        $custom = is_array($this->homepage_section_labels) ? $this->homepage_section_labels : [];
+        $saved = is_array($custom[$section] ?? null) ? $custom[$section] : [];
+
+        return [
+            'subtitle' => filled($saved['subtitle'] ?? null)
+                ? (string) $saved['subtitle']
+                : $defaults['subtitle'],
+            'title' => filled($saved['title'] ?? null)
+                ? (string) $saved['title']
+                : $defaults['title'],
+        ];
+    }
+
+    public function homepageFacilitiesLimit(): int
+    {
+        $limit = (int) ($this->homepage_facilities_limit ?? 6);
+
+        return max(1, min($limit, 12));
     }
 
     public function showsNewsSection(): bool

@@ -7,6 +7,7 @@ use App\Filament\Resources\SiteSettingResource\Pages\ListSiteSettings;
 use App\Filament\Support\ManagedImageUpload;
 use App\Models\Page;
 use App\Models\SiteSetting;
+use App\Support\HomepageSectionHeadings;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -93,10 +94,24 @@ class SiteSettingResource extends Resource
                                     Toggle::make('show_news_section')
                                         ->label('Show News & Notices on homepage')
                                         ->helperText('Turn off to hide School Updates, /news pages, and the Achievements menu link.'),
+                                    Select::make('homepage_facilities_limit')
+                                        ->label('Facilities shown on homepage')
+                                        ->options([
+                                            4 => '4 (2 × 2)',
+                                            6 => '6 (3 × 2 on desktop, 2 × 3 on mobile)',
+                                            8 => '8 (4 × 2 on desktop)',
+                                        ])
+                                        ->default(6)
+                                        ->native(false)
+                                        ->helperText('Uses sort order from CMS → Facilities. First items by sort order are shown.'),
                                     Toggle::make('show_admission_banner')->label('Show yellow admission banner on site')->default(true),
                                     TextInput::make('admission_banner_text')->maxLength(255)->placeholder('Admission Open 2026–27'),
                                 ])
                                 ->columns(2),
+                            Section::make('Section headings')
+                                ->description('Small label and main heading for each homepage block. Leave blank to keep the default text.')
+                                ->collapsed()
+                                ->schema(static::homepageSectionHeadingFields()),
                         ]),
                     Tab::make('SEO')
                         ->icon(Heroicon::OutlinedMagnifyingGlass)
@@ -188,5 +203,41 @@ class SiteSettingResource extends Resource
     public static function canCreate(): bool
     {
         return SiteSetting::query()->count() === 0;
+    }
+
+    /** @return array<int, Section> */
+    private static function homepageSectionHeadingFields(): array
+    {
+        $labels = [
+            'about' => 'About',
+            'news' => 'News & Notices',
+            'mission' => 'Mission & Vision',
+            'leadership' => 'Leadership messages',
+            'facilities' => 'Facilities',
+            'gallery' => 'Photo gallery',
+            'testimonials' => 'Testimonials',
+            'videos' => 'Videos',
+            'contact' => 'Contact',
+        ];
+
+        $fields = [];
+
+        foreach (HomepageSectionHeadings::defaults() as $key => $defaults) {
+            $fields[] = Section::make($labels[$key] ?? ucfirst($key))
+                ->schema([
+                    TextInput::make("homepage_section_labels.{$key}.subtitle")
+                        ->label('Small label')
+                        ->placeholder($defaults['subtitle'])
+                        ->maxLength(120),
+                    TextInput::make("homepage_section_labels.{$key}.title")
+                        ->label('Main heading')
+                        ->placeholder($defaults['title'])
+                        ->maxLength(120),
+                ])
+                ->columns(2)
+                ->compact();
+        }
+
+        return $fields;
     }
 }

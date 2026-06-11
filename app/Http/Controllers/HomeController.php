@@ -11,6 +11,7 @@ use App\Models\Post;
 use App\Models\SiteSetting;
 use App\Models\Testimonial;
 use App\Models\Video;
+use App\Support\HomepageLimits;
 
 class HomeController extends Controller
 {
@@ -18,27 +19,50 @@ class HomeController extends Controller
     {
         $settings = SiteSetting::current();
         $showNews = $settings->showsNewsSection();
+        $facilitiesLimit = $settings->homepageFacilitiesLimit();
+
+        $publishedFacilities = Facility::query()->published()->ordered();
+        $publishedGallery = GalleryItem::query()->published()->withImage()->ordered();
+        $publishedTestimonials = Testimonial::query()->published()->ordered();
+        $publishedVideos = Video::query()->published()->ordered();
+        $publishedDeskMessages = DeskMessage::query()->published()->orderedForDisplay();
+
+        $postCounts = $showNews
+            ? Post::query()
+                ->publishedPosts()
+                ->selectRaw('type, count(*) as total')
+                ->groupBy('type')
+                ->pluck('total', 'type')
+            : collect();
 
         return view('home', [
             'slides' => HeroSlide::query()->published()->withImage()->ordered()->get(),
-            'announcements' => $showNews ? $this->posts(PostType::Announcement, 3) : collect(),
-            'achievements' => $showNews ? $this->posts(PostType::Achievement, 3) : collect(),
-            'events' => $showNews ? $this->posts(PostType::Event, 3) : collect(),
-            'facilities' => Facility::query()->published()->ordered()->limit(8)->get(),
-            'gallery' => GalleryItem::query()->published()->withImage()->ordered()->limit(6)->get(),
-            'videos' => Video::query()->published()->ordered()->limit(4)->get(),
-            'deskMessages' => DeskMessage::query()->published()->orderedForDisplay()->get(),
-            'testimonials' => Testimonial::query()->published()->ordered()->limit(5)->get(),
+            'announcements' => $showNews ? $this->posts(PostType::Announcement) : collect(),
+            'achievements' => $showNews ? $this->posts(PostType::Achievement) : collect(),
+            'events' => $showNews ? $this->posts(PostType::Event) : collect(),
+            'hasMoreAnnouncements' => (int) ($postCounts[PostType::Announcement->value] ?? 0) > HomepageLimits::NEWS,
+            'hasMoreAchievements' => (int) ($postCounts[PostType::Achievement->value] ?? 0) > HomepageLimits::NEWS,
+            'hasMoreEvents' => (int) ($postCounts[PostType::Event->value] ?? 0) > HomepageLimits::NEWS,
+            'facilities' => (clone $publishedFacilities)->limit($facilitiesLimit)->get(),
+            'hasMoreFacilities' => $publishedFacilities->count() > $facilitiesLimit,
+            'gallery' => (clone $publishedGallery)->limit(HomepageLimits::GALLERY)->get(),
+            'hasMoreGallery' => $publishedGallery->count() > HomepageLimits::GALLERY,
+            'testimonials' => (clone $publishedTestimonials)->limit(HomepageLimits::TESTIMONIALS)->get(),
+            'hasMoreTestimonials' => $publishedTestimonials->count() > HomepageLimits::TESTIMONIALS,
+            'videos' => (clone $publishedVideos)->limit(HomepageLimits::VIDEOS)->get(),
+            'hasMoreVideos' => $publishedVideos->count() > HomepageLimits::VIDEOS,
+            'deskMessages' => (clone $publishedDeskMessages)->limit(HomepageLimits::DESK_MESSAGES)->get(),
+            'hasMoreDeskMessages' => $publishedDeskMessages->count() > HomepageLimits::DESK_MESSAGES,
         ]);
     }
 
-    private function posts(PostType $type, int $limit)
+    private function posts(PostType $type)
     {
         return Post::query()
             ->publishedPosts()
             ->ofType($type)
             ->orderByDesc('published_at')
-            ->limit($limit)
+            ->limit(HomepageLimits::NEWS)
             ->get();
     }
 }

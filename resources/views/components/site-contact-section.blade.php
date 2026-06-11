@@ -8,7 +8,7 @@
 @endphp
 
 @if ($showTitle)
-    <x-section-title subtitle="Reach us">Contact Us</x-section-title>
+    <x-home-section-title section="contact" />
 @endif
 
 <div class="grid lg:grid-cols-2 gap-6 lg:gap-10 lg:items-stretch">

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DeskMessage;
 use App\Models\DisclosureDocument;
+use App\Models\Facility;
 use App\Models\GalleryItem;
 use App\Models\Page;
+use App\Models\Testimonial;
 use App\Models\Video;
 use Illuminate\View\View;
 
@@ -34,6 +37,27 @@ class PageController extends Controller
         $videos = Video::query()->published()->ordered()->paginate(12);
 
         return view('videos', compact('videos'));
+    }
+
+    public function facilities(): View
+    {
+        $facilities = Facility::query()->published()->ordered()->get();
+
+        return view('facilities', compact('facilities'));
+    }
+
+    public function testimonials(): View
+    {
+        $testimonials = Testimonial::query()->published()->ordered()->paginate(12);
+
+        return view('testimonials', compact('testimonials'));
+    }
+
+    public function leadership(): View
+    {
+        $messages = DeskMessage::query()->published()->orderedForDisplay()->get();
+
+        return view('leadership', compact('messages'));
     }
 
     public function mandatoryDisclosure(): View
