@@ -1,7 +1,7 @@
 @props(['post'])
 <a href="{{ route('posts.show', $post->slug) }}" class="flex gap-4 rounded-xl bg-white p-4 lg:p-5 shadow-sm border border-neutral-200 hover:border-accent hover:shadow-md transition">
     @if ($post->image_path)
-        <img src="{{ \App\Support\MediaUrl::public($post->image_path) }}" alt="" class="h-20 w-20 rounded-xl object-cover shrink-0" loading="lazy" decoding="async" width="80" height="80">
+        <img src="{{ \App\Support\MediaUrl::public($post->image_path) }}" alt="" class="h-20 aspect-[8/5] rounded-xl object-cover shrink-0" loading="lazy" decoding="async" width="128" height="80">
     @endif
     <div class="min-w-0 flex-1">
         <p class="text-[10px] font-bold uppercase tracking-wide text-accent-dark">{{ $post->type->label() }}</p>

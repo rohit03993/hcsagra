@@ -1,7 +1,7 @@
 @props(['post'])
 <a href="{{ route('posts.show', $post->slug) }}" class="news-list-item group flex items-center gap-3 sm:gap-4 py-3.5 sm:py-4 border-b border-neutral-200/80 last:border-0 transition-colors">
     @if ($post->image_path)
-        <img src="{{ \App\Support\MediaUrl::public($post->image_path) }}" alt="" class="h-14 w-14 sm:h-16 sm:w-16 rounded-xl object-cover shrink-0 ring-2 ring-white shadow-sm" loading="lazy" decoding="async" width="64" height="64">
+        <img src="{{ \App\Support\MediaUrl::public($post->image_path) }}" alt="" class="h-14 sm:h-16 aspect-[8/5] rounded-xl object-cover shrink-0 ring-2 ring-white shadow-sm" loading="lazy" decoding="async" width="102" height="64">
     @else
         <div class="h-14 w-14 sm:h-16 sm:w-16 rounded-xl bg-brand-900 flex items-center justify-center shrink-0 text-accent text-[10px] font-bold tracking-wide">NEWS</div>
     @endif

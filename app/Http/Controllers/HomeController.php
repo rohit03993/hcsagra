@@ -16,12 +16,12 @@ class HomeController extends Controller
     public function __invoke()
     {
         return view('home', [
-            'slides' => HeroSlide::query()->published()->ordered()->get(),
+            'slides' => HeroSlide::query()->published()->withImage()->ordered()->get(),
             'announcements' => $this->posts(PostType::Announcement, 3),
             'achievements' => $this->posts(PostType::Achievement, 3),
             'events' => $this->posts(PostType::Event, 3),
             'facilities' => Facility::query()->published()->ordered()->limit(8)->get(),
-            'gallery' => GalleryItem::query()->published()->ordered()->limit(6)->get(),
+            'gallery' => GalleryItem::query()->published()->withImage()->ordered()->limit(6)->get(),
             'videos' => Video::query()->published()->ordered()->limit(4)->get(),
             'deskMessages' => DeskMessage::query()->published()->ordered()->get(),
             'testimonials' => Testimonial::query()->published()->ordered()->limit(5)->get(),

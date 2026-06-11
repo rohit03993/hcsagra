@@ -103,6 +103,11 @@ class SiteSettingResource extends Resource
                                 ->rows(3)
                                 ->maxLength(160)
                                 ->helperText('About 150 characters. Used when a page has no custom SEO description.'),
+                            TextInput::make('google_analytics_measurement_id')
+                                ->label('Google Analytics Measurement ID')
+                                ->placeholder('G-XXXXXXXXXX')
+                                ->maxLength(64)
+                                ->helperText('Paste your GA4 ID from analytics.google.com → Admin → Data streams → Web → Measurement ID. Leave empty to turn off tracking. Only the public website is tracked — not the admin panel.'),
                         ]),
                     Tab::make('Contact')
                         ->icon(Heroicon::OutlinedPhone)

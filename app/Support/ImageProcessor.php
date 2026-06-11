@@ -71,13 +71,21 @@ class ImageProcessor
             return $path;
         }
 
+        $srcRatio = $srcW / $srcH;
+        $targetRatio = $targetW / $targetH;
+        $ratioMatches = abs($srcRatio - $targetRatio) < 0.03;
+
+        // Keep the admin crop when already within target size.
         if ($srcW <= $targetW && $srcH <= $targetH) {
             imagedestroy($src);
 
             return $path;
         }
 
-        $dst = self::resizeCover($src, $srcW, $srcH, $targetW, $targetH);
+        // Same aspect ratio as preset: scale down only — do not center-crop again.
+        $dst = $ratioMatches
+            ? self::resizeDown($src, $srcW, $srcH, $targetW, $targetH)
+            : self::resizeCover($src, $srcW, $srcH, $targetW, $targetH);
         imagedestroy($src);
 
         $usePng = str_contains($extension, 'png') || str_contains(mime_content_type($fullPath) ?: '', 'png');
@@ -106,6 +114,24 @@ class ImageProcessor
         }
 
         return $newPath;
+    }
+
+    /**
+     * Scale down when aspect ratio already matches (preserves Filament crop).
+     *
+     * @param \GdImage|resource $src
+     * @return \GdImage|resource
+     */
+    private static function resizeDown($src, int $srcW, int $srcH, int $targetW, int $targetH)
+    {
+        $scale = min($targetW / $srcW, $targetH / $srcH, 1);
+        $newW = max(1, (int) round($srcW * $scale));
+        $newH = max(1, (int) round($srcH * $scale));
+
+        $dst = imagecreatetruecolor($newW, $newH);
+        imagecopyresampled($dst, $src, 0, 0, 0, 0, $newW, $newH, $srcW, $srcH);
+
+        return $dst;
     }
 
     /**

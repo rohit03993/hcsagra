@@ -4,6 +4,9 @@ namespace App\Filament\Support;
 
 use App\Support\MediaUrl;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
+use Filament\Resources\Pages\CreateRecord;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\View;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -78,23 +81,29 @@ class ManagedImageUpload
     ): array {
         self::PRESETS[$preset] ?? throw new \InvalidArgumentException("Unknown image preset: {$preset}");
 
+        $removeField = '_remove_'.$field;
+        $replaceField = '_replace_'.$field;
+        $presetConfig = self::PRESETS[$preset];
+
         return [
+            Hidden::make($removeField)
+                ->default(false)
+                ->dehydrated()
+                ->live(),
+            Hidden::make($replaceField)
+                ->default(false)
+                ->dehydrated()
+                ->live(),
             View::make('filament.forms.image-upload-helper')
                 ->columnSpanFull()
-                ->visible(function (?Model $record) use ($field): bool {
-                    if ($record === null) {
-                        return false;
-                    }
-
-                    $path = $record->getAttribute($field);
-
-                    return filled($path) && Storage::disk('public')->exists($path);
-                })
+                ->visible(fn (?Model $record): bool => $record !== null)
                 ->viewData(fn (?Model $record): array => [
                     'path' => $record?->getAttribute($field),
+                    'field' => $field,
                     'label' => $label ?? 'Image',
+                    'ratio' => $presetConfig['ratio'],
                 ]),
-            self::make($field, $preset, $directory, $required, $maxSizeKb, $label)
+            self::make($field, $preset, $directory, $required, $maxSizeKb, $label, $removeField, $replaceField)
                 ->columnSpanFull(),
         ];
     }
@@ -106,7 +115,11 @@ class ManagedImageUpload
         bool $required = false,
         ?int $maxSizeKb = 5120,
         ?string $label = null,
+        ?string $removeField = null,
+        ?string $replaceField = null,
     ): FileUpload {
+        $removeField ??= '_remove_'.$field;
+        $replaceField ??= '_replace_'.$field;
         $config = self::PRESETS[$preset] ?? throw new \InvalidArgumentException("Unknown image preset: {$preset}");
 
         Storage::disk('public')->makeDirectory($directory);
@@ -122,13 +135,14 @@ class ManagedImageUpload
             ->imagePreviewHeight(self::previewHeightFor($preset))
             ->imageAspectRatio($config['ratio'])
             ->itemPanelAspectRatio($config['ratio'])
-            ->panelLayout('integrated')
+            ->panelLayout('grid')
             ->automaticallyOpenImageEditorForAspectRatio()
             ->imageEditor()
             ->imageEditorEmptyFillColor('#f4f4f5')
-            ->removeUploadedFileButtonPosition('left bottom')
-            ->uploadButtonPosition('right bottom')
-            ->uploadProgressIndicatorPosition('right bottom')
+            ->deletable(true)
+            ->removeUploadedFileButtonPosition('right top')
+            ->uploadButtonPosition('center')
+            ->uploadProgressIndicatorPosition('center')
             ->imageEditorAspectRatioOptions([
                 $config['ratio'] => $config['ratio'],
             ])
@@ -167,15 +181,43 @@ class ManagedImageUpload
                 ];
             })
             ->helperText(
-                "Upload → crop (drag to frame faces/building) → Save in crop window → Save changes here. "
-                ."Pencil = crop again. X = replace. Output about {$config['w']}×{$config['h']} px."
-            );
+                "Ratio {$config['ratio']} (about {$config['w']}×{$config['h']} px). Click thumbnail → Edit to crop after upload."
+            )
+            ->visible(function (Get $get, ?Model $record) use ($field, $removeField, $replaceField): bool {
+                if ($record === null) {
+                    return true;
+                }
+
+                if (self::isTruthy($get($removeField))) {
+                    return false;
+                }
+
+                $storedPath = $record->getAttribute($field);
+                $hasStored = filled($storedPath) && Storage::disk('public')->exists($storedPath);
+
+                if (! $hasStored) {
+                    return true;
+                }
+
+                return self::isTruthy($get($replaceField));
+            });
 
         if ($required) {
-            $upload->required();
+            $upload->required(function (Get $get, $livewire) use ($removeField): bool {
+                if ($livewire instanceof CreateRecord) {
+                    return true;
+                }
+
+                return ! self::isTruthy($get($removeField));
+            });
         }
 
         return $upload;
+    }
+
+    private static function isTruthy(mixed $value): bool
+    {
+        return $value === true || $value === 1 || $value === '1' || $value === 'true';
     }
 
     private static function previewHeightFor(string $preset): string

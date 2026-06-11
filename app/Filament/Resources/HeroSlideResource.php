@@ -35,13 +35,16 @@ class HeroSlideResource extends Resource
     {
         return $schema->components([
             Section::make('Slide content')
-                ->description('Each row here is one rotating banner on the homepage — add multiple slides, do not replace another slide’s image.')
+                ->description('Leave text fields empty for an image-only banner. Only filled fields appear on the website.')
                 ->schema([
-                    TextInput::make('title')->required()->maxLength(255),
-                    TextInput::make('subtitle')->maxLength(255),
-                    TextInput::make('button_text')->maxLength(100)->placeholder('Admission Open'),
+                    TextInput::make('title')->maxLength(255)
+                        ->placeholder('Optional — leave empty to hide title'),
+                    TextInput::make('subtitle')->maxLength(255)
+                        ->placeholder('Optional'),
+                    TextInput::make('button_text')->maxLength(100)
+                        ->placeholder('Optional — e.g. Admission Open'),
                     TextInput::make('button_url')->url()->maxLength(255)
-                        ->placeholder('Leave empty to use admission enquiry form'),
+                        ->placeholder('Optional — leave empty to use admission form when button text is set'),
                     TextInput::make('sort_order')->numeric()->default(0)->helperText('Lower number shows first.'),
                     Toggle::make('is_published')->default(true),
                 ])
@@ -60,7 +63,7 @@ class HeroSlideResource extends Resource
         return ResourceTable::editable($table, static::class, reorderable: true)
             ->columns([
                 MediaImageColumn::make('image_path'),
-                TextColumn::make('title')->searchable(),
+                TextColumn::make('title')->searchable()->placeholder('Image only'),
                 TextColumn::make('sort_order')->sortable(),
                 ToggleColumn::make('is_published'),
             ])

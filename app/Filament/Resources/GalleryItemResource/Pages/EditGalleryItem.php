@@ -16,4 +16,15 @@ class EditGalleryItem extends EditRecord
     {
         return ['image_path'];
     }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $data = parent::mutateFormDataBeforeSave($data);
+
+        if (blank($data['image_path'] ?? null)) {
+            $data['is_published'] = false;
+        }
+
+        return $data;
+    }
 }

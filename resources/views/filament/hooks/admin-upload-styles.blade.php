@@ -1,37 +1,33 @@
 <style>
-    /* Large, readable image previews in all CMS upload fields */
-    .fi-fo-file-upload .filepond--root[data-style-panel-layout='integrated'] {
-        min-height: 14rem;
+    .managed-image-panel + .fi-fo-field-wrp-label {
+        margin-top: 0.75rem;
     }
 
-    .fi-fo-file-upload .filepond--root[data-style-panel-layout='integrated'] .filepond--image-preview-wrapper {
-        min-height: 12rem !important;
+    .managed-image-upload .filepond--root[data-style-panel-layout='grid'] {
+        min-height: 9rem;
     }
 
-    .fi-fo-file-upload .filepond--image-preview {
+    .managed-image-upload .filepond--item {
+        width: 100%;
+        max-width: 20rem;
+    }
+
+    .managed-image-upload .filepond--image-preview {
         background: #f4f4f5 !important;
     }
 
-    .fi-fo-file-upload .filepond--image-preview img,
-    .fi-fo-file-upload .filepond--image-clip img,
-    .fi-fo-file-upload .filepond--image-clip canvas {
+    .managed-image-upload .filepond--image-preview img,
+    .managed-image-upload .filepond--image-clip img,
+    .managed-image-upload .filepond--image-clip canvas {
         object-fit: contain !important;
-        max-height: 100%;
-        width: 100% !important;
     }
 
-    .fi-fo-file-upload .filepond--file {
-        min-height: 12rem;
+    .managed-image-upload .filepond--file-action-button {
+        opacity: 1 !important;
+        transform: none !important;
     }
 
-    .fi-fo-file-upload .filepond--file-action-button.filepond--action-edit-item {
-        width: 2.5rem;
-        height: 2.5rem;
-        background: rgb(0 0 0 / 0.7) !important;
-    }
-
-    .fi-fo-file-upload .filepond--file-action-button.filepond--action-remove-item {
-        width: 2.25rem;
-        height: 2.25rem;
+    .managed-image-upload .filepond--action-remove-item {
+        background: rgb(220 38 38 / 0.95) !important;
     }
 </style>

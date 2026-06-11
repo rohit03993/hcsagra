@@ -19,7 +19,7 @@ class PageController extends Controller
 
     public function gallery(): View
     {
-        $items = GalleryItem::query()->published()->ordered()->paginate(24);
+        $items = GalleryItem::query()->published()->withImage()->ordered()->paginate(24);
 
         return view('gallery', compact('items'));
     }

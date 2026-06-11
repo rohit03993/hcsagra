@@ -11,6 +11,7 @@ class SiteSetting extends Model
         'school_name',
         'tagline',
         'default_meta_description',
+        'google_analytics_measurement_id',
         'affiliation_line',
         'about_text',
         'mission_title',
@@ -77,6 +78,22 @@ class SiteSetting extends Model
         return filled($this->mandatory_disclosure_url)
             ? $this->mandatory_disclosure_url
             : route('mandatory-disclosure');
+    }
+
+    /** GA4 measurement ID (G-XXXXXXXX) from admin input; null when unset or invalid. */
+    public function googleAnalyticsMeasurementId(): ?string
+    {
+        $raw = trim((string) $this->google_analytics_measurement_id);
+
+        if ($raw === '') {
+            return null;
+        }
+
+        if (preg_match('/G-[A-Z0-9]+/i', $raw, $matches)) {
+            return strtoupper($matches[0]);
+        }
+
+        return null;
     }
 
     protected static function booted(): void

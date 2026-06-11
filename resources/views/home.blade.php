@@ -11,35 +11,41 @@
                 <div class="hero-slider home-hero relative overflow-hidden">
                     <div class="hero-track flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar">
                         @foreach ($slides as $slide)
-                            <div class="hero-slide min-w-full snap-center relative shrink-0">
+                            @php
+                                $hasTitle = filled($slide->title);
+                                $hasSubtitle = filled($slide->subtitle);
+                                $hasButton = filled($slide->button_text);
+                                $hasCaption = $hasTitle || $hasSubtitle || $hasButton;
+                                $buttonHref = $hasButton ? ($slide->button_url ?: $settings->admissionUrl()) : null;
+                            @endphp
+                            <div class="hero-slide min-w-full snap-center relative shrink-0 aspect-[16/9]">
                                 <img
                                     src="{{ \App\Support\MediaUrl::public($slide->image_path) }}"
-                                    alt="{{ $slide->title }}"
-                                    class="absolute inset-0 w-full h-full object-cover"
+                                    alt="{{ $slide->title ?: $settings->school_name }}"
+                                    class="block w-full h-full object-cover object-center"
                                     @if ($loop->first) fetchpriority="high" @else loading="lazy" @endif
                                     decoding="async"
                                     width="1200"
-                                    height="514"
+                                    height="675"
                                 >
-                                <div class="home-hero__overlay absolute inset-0"></div>
-                                <div class="home-hero__content absolute bottom-0 left-0 right-0">
-                                    <div class="site-container">
-                                        <div class="home-hero__caption">
-                                            @if ($loop->first)
-                                                <p class="home-hero__welcome">Welcome to {{ $settings->school_name }}</p>
-                                            @endif
-                                            <h2 class="home-hero__title">{{ $slide->title }}</h2>
-                                            @if ($slide->subtitle)
-                                                <p class="home-hero__subtitle">{{ $slide->subtitle }}</p>
-                                            @endif
-                                            @if ($slide->button_url && $slide->button_text)
-                                                <a href="{{ $slide->button_url }}" class="home-btn-primary home-hero__cta">{{ $slide->button_text }}</a>
-                                            @else
-                                                <a href="{{ $settings->admissionUrl() }}" class="home-btn-primary home-hero__cta">Apply for Admission</a>
-                                            @endif
+                                @if ($hasCaption)
+                                    <div class="home-hero__overlay absolute inset-0"></div>
+                                    <div class="home-hero__content absolute bottom-0 left-0 right-0">
+                                        <div class="site-container">
+                                            <div class="home-hero__caption">
+                                                @if ($hasTitle)
+                                                    <h2 class="home-hero__title">{{ $slide->title }}</h2>
+                                                @endif
+                                                @if ($hasSubtitle)
+                                                    <p class="home-hero__subtitle">{{ $slide->subtitle }}</p>
+                                                @endif
+                                                @if ($hasButton)
+                                                    <a href="{{ $buttonHref }}" class="home-btn-primary home-hero__cta">{{ $slide->button_text }}</a>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                @endif
                             </div>
                         @endforeach
                     </div>

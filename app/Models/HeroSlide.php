@@ -26,4 +26,9 @@ class HeroSlide extends Model
             'sort_order' => 'integer',
         ];
     }
+
+    public function scopeWithImage($query)
+    {
+        return $query->whereNotNull('image_path')->where('image_path', '!=', '');
+    }
 }
