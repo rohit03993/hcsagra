@@ -152,19 +152,19 @@ class DemoSeeder extends Seeder
         $placeholder = 'images/demo/placeholder.svg';
 
         DeskMessage::create([
-            'role' => 'principal',
-            'name' => 'Dr. Gaurav Dubey',
-            'designation' => 'Principal',
-            'message' => 'Knowledge brings humility; from humility comes worthiness. We strive to help every child perform their duties with excellence and find true happiness in learning.',
+            'role' => 'chairman',
+            'name' => 'Mr. Jitendra Kumar Gupta',
+            'designation' => 'Director',
+            'message' => 'Our endeavour is to provide the very best academics, sports infrastructure, and technology so we nurture the future of our children with care and commitment.',
             'photo_path' => $placeholder,
             'sort_order' => 0,
             'is_published' => true,
         ]);
         DeskMessage::create([
-            'role' => 'chairman',
-            'name' => 'Mr. Jitendra Kumar Gupta',
-            'designation' => 'Chairman',
-            'message' => 'Our endeavour is to provide the very best academics, sports infrastructure, and technology so we nurture the future of our children with care and commitment.',
+            'role' => 'principal',
+            'name' => 'Dr. Gaurav Dubey',
+            'designation' => 'Principal',
+            'message' => 'Knowledge brings humility; from humility comes worthiness. We strive to help every child perform their duties with excellence and find true happiness in learning.',
             'photo_path' => $placeholder,
             'sort_order' => 1,
             'is_published' => true,

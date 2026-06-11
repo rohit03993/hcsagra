@@ -4,15 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Page;
 use App\Models\Post;
+use App\Models\SiteSetting;
 use Illuminate\Http\Response;
 
 class SitemapController extends Controller
 {
     public function __invoke(): Response
     {
+        $showNews = SiteSetting::current()->showsNewsSection();
+
         $urls = [
             ['loc' => route('home'), 'priority' => '1.0'],
-            ['loc' => route('posts.index', ['type' => 'announcement']), 'priority' => '0.9'],
             ['loc' => route('gallery'), 'priority' => '0.8'],
             ['loc' => route('videos'), 'priority' => '0.8'],
             ['loc' => route('contact'), 'priority' => '0.8'],
@@ -28,12 +30,16 @@ class SitemapController extends Controller
             ];
         }
 
-        foreach (Post::query()->publishedPosts()->get(['slug', 'updated_at']) as $post) {
-            $urls[] = [
-                'loc' => route('posts.show', $post->slug),
-                'lastmod' => $post->updated_at?->toAtomString(),
-                'priority' => '0.6',
-            ];
+        if ($showNews) {
+            $urls[] = ['loc' => route('posts.index', ['type' => 'announcement']), 'priority' => '0.9'];
+
+            foreach (Post::query()->publishedPosts()->get(['slug', 'updated_at']) as $post) {
+                $urls[] = [
+                    'loc' => route('posts.show', $post->slug),
+                    'lastmod' => $post->updated_at?->toAtomString(),
+                    'priority' => '0.6',
+                ];
+            }
         }
 
         $xml = view('sitemap', compact('urls'))->render();

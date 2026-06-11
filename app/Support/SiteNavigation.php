@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use App\Models\SiteSetting;
+
 class SiteNavigation
 {
     /**
@@ -11,7 +13,7 @@ class SiteNavigation
      */
     public static function menu(): array
     {
-        return [
+        $menu = [
             ['label' => 'Home', 'url' => route('home')],
             [
                 'label' => 'About us',
@@ -36,8 +38,13 @@ class SiteNavigation
                     ['label' => 'Academic Calendar', 'url' => route('pages.show', 'academic-calendar')],
                 ],
             ],
-            ['label' => 'Achievements', 'url' => route('posts.index', ['type' => 'achievement'])],
         ];
+
+        if (SiteSetting::current()->showsNewsSection()) {
+            $menu[] = ['label' => 'Achievements', 'url' => route('posts.index', ['type' => 'achievement'])];
+        }
+
+        return $menu;
     }
 
     public static function footerColumns(): array

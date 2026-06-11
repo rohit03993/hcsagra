@@ -13,7 +13,6 @@ function initHeroSlider() {
     const slides = track.querySelectorAll('.hero-slide');
     if (slides.length < 2) return;
 
-    const dotsWrap = document.querySelector('.hero-dots');
     const prevBtn = document.querySelector('.hero-prev');
     const nextBtn = document.querySelector('.hero-next');
 
@@ -23,33 +22,6 @@ function initHeroSlider() {
         const i = ((index % slides.length) + slides.length) % slides.length;
         track.scrollTo({ left: slides[i].offsetLeft, behavior: 'smooth' });
     };
-
-    if (dotsWrap) {
-        slides.forEach((_, i) => {
-            const dot = document.createElement('button');
-            dot.type = 'button';
-            dot.className = 'w-2.5 h-2.5 rounded-full bg-white/40 transition';
-            dot.setAttribute('aria-label', `Slide ${i + 1}`);
-            dot.addEventListener('click', () => {
-                goTo(i);
-                resetTimer();
-            });
-            dotsWrap.appendChild(dot);
-        });
-    }
-
-    const dots = dotsWrap ? dotsWrap.querySelectorAll('button') : [];
-
-    const setActive = () => {
-        const index = getIndex();
-        dots.forEach((d, i) => {
-            d.classList.toggle('bg-accent', i === index);
-            d.classList.toggle('bg-white/50', i !== index);
-        });
-    };
-
-    track.addEventListener('scroll', setActive, { passive: true });
-    setActive();
 
     prevBtn?.addEventListener('click', () => {
         goTo(getIndex() - 1);

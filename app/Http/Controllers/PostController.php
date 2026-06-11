@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\PostType;
 use App\Models\Post;
+use App\Models\SiteSetting;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -11,6 +12,8 @@ class PostController extends Controller
 {
     public function index(Request $request): View
     {
+        abort_unless(SiteSetting::current()->showsNewsSection(), 404);
+
         $type = PostType::tryFrom($request->query('type', 'announcement')) ?? PostType::Announcement;
 
         $posts = Post::query()
@@ -24,6 +27,8 @@ class PostController extends Controller
 
     public function show(string $slug): View
     {
+        abort_unless(SiteSetting::current()->showsNewsSection(), 404);
+
         $post = Post::query()
             ->publishedPosts()
             ->where('slug', $slug)

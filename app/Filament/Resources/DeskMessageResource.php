@@ -36,9 +36,10 @@ class DeskMessageResource extends Resource
     {
         return $schema->components([
             Select::make('role')->options([
+                'chairman' => 'Director',
                 'principal' => 'Principal',
-                'chairman' => 'Chairman',
-            ])->required()->native(false),
+            ])->required()->native(false)
+                ->helperText('Director appears first on the homepage, then Principal.'),
             TextInput::make('name')->required(),
             TextInput::make('designation'),
             ...ManagedImageUpload::fields('photo_path', 'desk', 'messages', label: 'Upload or edit photo'),

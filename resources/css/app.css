@@ -953,15 +953,6 @@ body.menu-open .site-fabs {
         margin-top: 1.25rem;
     }
 }
-.home-hero__dots button {
-    width: 0.5rem;
-    height: 0.5rem;
-}
-.home-hero__dots button.bg-accent {
-    width: 1.5rem;
-    border-radius: 9999px;
-}
-
 .home-section {
     padding-block: 2.5rem;
 }

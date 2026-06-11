@@ -88,8 +88,11 @@ class SiteSettingResource extends Resource
                                         ->helperText('Choose a page from CMS → Pages (e.g. Vision & Mission). Leave empty to hide “Read more” links.'),
                                 ])
                                 ->columns(2),
-                            Section::make('Admission strip')
+                            Section::make('Homepage sections')
                                 ->schema([
+                                    Toggle::make('show_news_section')
+                                        ->label('Show News & Notices on homepage')
+                                        ->helperText('Turn off to hide School Updates, /news pages, and the Achievements menu link.'),
                                     Toggle::make('show_admission_banner')->label('Show yellow admission banner on site')->default(true),
                                     TextInput::make('admission_banner_text')->maxLength(255)->placeholder('Admission Open 2026–27'),
                                 ])

@@ -36,13 +36,20 @@ class SiteSetting extends Model
         'favicon_path',
         'show_admission_banner',
         'admission_banner_text',
+        'show_news_section',
     ];
 
     protected function casts(): array
     {
         return [
             'show_admission_banner' => 'boolean',
+            'show_news_section' => 'boolean',
         ];
+    }
+
+    public function showsNewsSection(): bool
+    {
+        return (bool) $this->show_news_section;
     }
 
     public static function current(): self

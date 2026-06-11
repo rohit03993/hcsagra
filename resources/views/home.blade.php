@@ -56,7 +56,6 @@
                         <button type="button" class="hero-next hero-nav-btn home-hero__nav home-hero__nav--next absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-20" aria-label="Next slide">
                             <x-site-icon name="chevron-right" class="w-6 h-6" />
                         </button>
-                        <div class="hero-dots home-hero__dots absolute bottom-4 left-0 right-0 flex justify-center gap-2.5 z-10 pointer-events-none [&_button]:pointer-events-auto"></div>
                     @endif
                 </div>
             </div>
@@ -131,7 +130,7 @@
         </div>
     </section>
 
-    @if ($announcements->isNotEmpty() || $achievements->isNotEmpty() || $events->isNotEmpty())
+    @if ($settings->showsNewsSection() && ($announcements->isNotEmpty() || $achievements->isNotEmpty() || $events->isNotEmpty()))
         <section class="home-band home-band--cream">
             <div class="site-container home-section home-section--in-band home-section--tight-top" id="updates">
                 <x-section-title subtitle="News &amp; Notices">School Updates</x-section-title>
@@ -203,7 +202,7 @@
     @if ($deskMessages->isNotEmpty())
         <section class="home-band home-band--cream">
             <div class="site-container home-section home-section--in-band">
-                <x-section-title subtitle="Leadership Messages">From the Principal's Desk</x-section-title>
+                <x-section-title subtitle="Leadership Messages">Director &amp; Principal</x-section-title>
                 <div class="home-desk-grid">
                     @foreach ($deskMessages as $message)
                         <article class="home-desk-card">
